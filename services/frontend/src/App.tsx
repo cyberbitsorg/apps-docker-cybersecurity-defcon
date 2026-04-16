@@ -54,7 +54,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   return (
     // useTheme adds/removes "dark" on <html>; components use dark: variants
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+    <div className="min-h-screen overflow-x-hidden bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
       <Header
         theme={theme}
         onToggleTheme={toggleTheme}

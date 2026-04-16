@@ -24,9 +24,9 @@ export function Header({ theme, onToggleTheme, onRefresh, lastRefreshed, refresh
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
 
         {/* Logo */}
-        <div className="flex items-center gap-3">
-          <Shield className="w-7 h-7 text-red-500" strokeWidth={1.5} />
-          <div>
+        <div className="flex items-center gap-3 min-w-0">
+          <Shield className="w-5 h-5 flex-shrink-0 text-red-500" strokeWidth={1.5} />
+          <div className="min-w-0">
             <h1 className="text-sm font-semibold tracking-widest uppercase text-gray-900 dark:text-gray-100 leading-none">
               Cybersecurity
             </h1>
