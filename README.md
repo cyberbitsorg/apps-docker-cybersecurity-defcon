@@ -18,23 +18,11 @@ A self-hosted dashboard that aggregates cybersecurity news from RSS feeds, dedup
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Docker Compose                           │
-│                                                                 │
-│  ┌──────────┐   ┌──────────────────┐   ┌────────────────────┐  │
-│  │ Frontend │──>│   API Gateway    │──>│  News Aggregator   │  │
-│  │ :3000    │   │   :4000          │   │   :8000            │  │
-│  │ React    │   │   Express        │   │   FastAPI          │  │
-│  └──────────┘   └────────┬─────────┘   └────────┬───────────┘  │
-│                          │                      │              │
-│                   ┌──────┴──────┐        ┌──────┴──────┐       │
-│                   │  PostgreSQL │        │    Redis     │       │
-│                   │     :5432   │        │    :6379     │       │
-│                   └─────────────┘        └─────────────┘       │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+<div align="center">
+
+![Architecture](docs/screenshots/architecture.png)
+
+</div>
 
 ### Services
 
