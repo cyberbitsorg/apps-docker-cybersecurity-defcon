@@ -33,7 +33,7 @@ export default function App() {
 
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const { theme, toggle: toggleTheme } = useTheme();
-  const { articles, lastRefreshed, loading, error, refresh, toggleRead, markAllAsRead } = useArticles();
+  const { articles, lastRefreshed, loading, error, refresh, toggleRead, markAll, page, totalPages, goToPage } = useArticles();
   const { status: defconStatus, history: defconHistory, loading: defconLoading } = useDefcon();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -139,8 +139,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               articles={articles}
               loading={loading}
               error={error}
+              page={page}
+              totalPages={totalPages}
               onToggleRead={toggleRead}
-              onMarkAllRead={markAllAsRead}
+              onMarkAll={markAll}
+              onGoToPage={goToPage}
             />
           </section>
         </div>

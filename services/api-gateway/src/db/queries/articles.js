@@ -34,7 +34,8 @@ async function getArticles({ limit = 20, offset = 0, source, unreadOnly, session
       a.raw_categories,
       a.defcon_score,
       COALESCE(rs.is_read, FALSE) AS is_read,
-      rs.read_at
+      rs.read_at,
+      COUNT(*) OVER () AS total_count
     FROM articles a
     LEFT JOIN article_read_state rs
       ON rs.article_id = a.id AND rs.session_id = $3
@@ -44,13 +45,15 @@ async function getArticles({ limit = 20, offset = 0, source, unreadOnly, session
   `;
 
   const result = await pool.query(sql, params);
-  return result.rows.map((row) => ({
+  const total = result.rows.length > 0 ? parseInt(result.rows[0].total_count, 10) : 0;
+  const articles = result.rows.map((row) => ({
     ...row,
     id: row.id,
     source_display: SOURCE_DISPLAY[row.source] || row.source,
     categories: row.raw_categories || [],
     is_read: row.is_read === true,
   }));
+  return { articles, total };
 }
 
 async function markArticleRead({ articleId, sessionId, isRead }) {
@@ -67,17 +70,17 @@ async function markArticleRead({ articleId, sessionId, isRead }) {
   return result.rows[0];
 }
 
-async function markAllRead({ sessionId }) {
+async function markAllRead({ sessionId, isRead = true }) {
   const result = await pool.query(
     `
     INSERT INTO article_read_state (article_id, session_id, is_read, read_at)
-    SELECT a.id, $1, TRUE, NOW()
+    SELECT a.id, $1, $2, NOW()
     FROM articles a
     WHERE a.is_deleted = FALSE
     ON CONFLICT (article_id, session_id) DO UPDATE
-      SET is_read = TRUE, read_at = NOW()
+      SET is_read = $2, read_at = NOW()
     `,
-    [sessionId]
+    [sessionId, isRead]
   );
   return result.rowCount;
 }

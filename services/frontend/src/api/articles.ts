@@ -3,11 +3,13 @@ import type { ArticlesResponse } from "../types/article";
 
 export function getArticles(params?: {
   limit?: number;
+  offset?: number;
   source?: string;
   unread_only?: boolean;
 }): Promise<ArticlesResponse> {
   const query = new URLSearchParams();
   if (params?.limit) query.set("limit", String(params.limit));
+  if (params?.offset) query.set("offset", String(params.offset));
   if (params?.source) query.set("source", params.source);
   if (params?.unread_only) query.set("unread_only", "true");
   const qs = query.toString() ? `?${query}` : "";
@@ -21,8 +23,11 @@ export function markArticleRead(id: string, isRead: boolean): Promise<{ id: stri
   });
 }
 
-export function markAllRead(): Promise<{ marked_count: number }> {
-  return apiFetch("/articles/read-all", { method: "PATCH" });
+export function markAllRead(isRead = true): Promise<{ marked_count: number }> {
+  return apiFetch("/articles/read-all", {
+    method: "PATCH",
+    body: JSON.stringify({ is_read: isRead }),
+  });
 }
 
 export function triggerRefresh(): Promise<{ triggered: boolean }> {

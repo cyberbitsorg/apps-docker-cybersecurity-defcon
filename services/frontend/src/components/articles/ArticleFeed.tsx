@@ -1,4 +1,4 @@
-import { CheckCheck, Newspaper } from "lucide-react";
+import { CheckCheck, Newspaper, RotateCcw } from "lucide-react";
 import { ArticleCard } from "./ArticleCard";
 import type { Article } from "../../types/article";
 
@@ -6,12 +6,16 @@ interface ArticleFeedProps {
   articles: Article[];
   loading: boolean;
   error: string | null;
+  page: number;
+  totalPages: number;
   onToggleRead: (id: string, isRead: boolean) => void;
-  onMarkAllRead: () => void;
+  onMarkAll: (isRead: boolean) => void;
+  onGoToPage: (page: number) => void;
 }
 
-export function ArticleFeed({ articles, loading, error, onToggleRead, onMarkAllRead }: ArticleFeedProps) {
+export function ArticleFeed({ articles, loading, error, page, totalPages, onToggleRead, onMarkAll, onGoToPage }: ArticleFeedProps) {
   const unreadCount = articles.filter((a) => !a.is_read).length;
+  const allRead = articles.length > 0 && unreadCount === 0;
 
   if (loading) {
     return (
@@ -62,15 +66,22 @@ export function ArticleFeed({ articles, loading, error, onToggleRead, onMarkAllR
             </span>
           )}
         </h2>
-        {unreadCount > 0 && (
-          <button
-            onClick={onMarkAllRead}
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
-          >
-            <CheckCheck className="w-3.5 h-3.5" />
-            Mark all read
-          </button>
-        )}
+        <button
+          onClick={() => onMarkAll(!allRead)}
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+        >
+          {allRead ? (
+            <>
+              <RotateCcw className="w-3.5 h-3.5" />
+              Mark all unread
+            </>
+          ) : (
+            <>
+              <CheckCheck className="w-3.5 h-3.5" />
+              Mark all read
+            </>
+          )}
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5">
@@ -78,6 +89,27 @@ export function ArticleFeed({ articles, loading, error, onToggleRead, onMarkAllR
           <ArticleCard key={article.id} article={article} onToggleRead={onToggleRead} />
         ))}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-1.5 mt-6">
+          {Array.from({ length: totalPages }).map((_, i) => {
+            const p = i + 1;
+            return (
+              <button
+                key={p}
+                onClick={() => onGoToPage(p)}
+                className={`w-8 h-8 rounded text-xs font-medium transition-colors ${
+                  p === page
+                    ? "bg-blue-500 text-white"
+                    : "bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-700"
+                }`}
+              >
+                {p}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

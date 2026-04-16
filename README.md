@@ -193,8 +193,8 @@ Each RSS feed is fetched via `httpx` and parsed with `feedparser`. Raw articles 
 
 | Layer | Method | Threshold |
 |---|---|---|
-| **L1 — Fast** | SHA-256 fingerprint of normalized title tokens | Exact match via Redis SET |
-| **L2 — Semantic** | Jaccard token overlap + TF-IDF cosine similarity (scikit-learn) | Jaccard >= 0.35, cosine >= 0.55 |
+| L1 Fast | SHA-256 fingerprint of normalized title tokens | Exact match via Redis SET |
+| L2 Semantic | Jaccard token overlap + TF-IDF cosine similarity (scikit-learn) | Jaccard >= 0.35, cosine >= 0.55 |
 
 Temporal conflicts (different months/years in titles) are never flagged as duplicates. Cross-feed duplicates are caught within a batch before Redis state is updated.
 

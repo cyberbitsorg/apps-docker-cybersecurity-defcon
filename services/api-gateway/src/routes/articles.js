@@ -11,10 +11,10 @@ router.get("/", async (req, res, next) => {
     const unreadOnly = req.query.unread_only === "true";
     const sessionId = req.sessionId;
 
-    const articles = await getArticles({ limit, offset, source, unreadOnly, sessionId });
+    const { articles, total } = await getArticles({ limit, offset, source, unreadOnly, sessionId });
     const lastRefreshedAt = await getLastRefreshedAt();
 
-    res.json({ articles, total: articles.length, last_refreshed_at: lastRefreshedAt });
+    res.json({ articles, total, last_refreshed_at: lastRefreshedAt });
   } catch (err) {
     next(err);
   }
@@ -22,7 +22,8 @@ router.get("/", async (req, res, next) => {
 
 router.patch("/read-all", async (req, res, next) => {
   try {
-    const count = await markAllRead({ sessionId: req.sessionId });
+    const isRead = req.body?.is_read !== undefined ? Boolean(req.body.is_read) : true;
+    const count = await markAllRead({ sessionId: req.sessionId, isRead });
     res.json({ marked_count: count });
   } catch (err) {
     next(err);

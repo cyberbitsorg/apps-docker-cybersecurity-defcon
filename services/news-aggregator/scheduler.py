@@ -98,7 +98,7 @@ async def run_fetch_cycle():
     logger.info(f"Fetch cycle done: {inserted} inserted, {skipped} skipped/duplicate")
 
     # --- Step 3: trim, score, notify ---
-    await trim_old_articles(pool, keep=200, per_source=15)
+    await trim_old_articles(pool, keep=100, per_source=15)
 
     since = datetime.now(timezone.utc) - timedelta(hours=1)
     new_count = await get_new_article_count_since(pool, since)

@@ -51,7 +51,7 @@ async def upsert_dedup_log(pool: asyncpg.Pool, fingerprint: str, canonical_id: s
         logger.warning(f"upsert_dedup_log error: {e}")
 
 
-async def trim_old_articles(pool: asyncpg.Pool, keep: int = 200, per_source: int = 15):
+async def trim_old_articles(pool: asyncpg.Pool, keep: int = 100, per_source: int = 15):
     """
     Soft-delete old articles while guaranteeing each source keeps at least
     `per_source` recent articles. Then fill remaining slots by recency.
