@@ -9,9 +9,9 @@ router.get("/", async (req, res, next) => {
     const offset = parseInt(req.query.offset) || 0;
     const source = req.query.source || null;
     const unreadOnly = req.query.unread_only === "true";
-    const sessionId = req.sessionId;
+    const userId = req.userId;
 
-    const { articles, total } = await getArticles({ limit, offset, source, unreadOnly, sessionId });
+    const { articles, total } = await getArticles({ limit, offset, source, unreadOnly, userId });
     const lastRefreshedAt = await getLastRefreshedAt();
 
     res.json({ articles, total, last_refreshed_at: lastRefreshedAt });
@@ -23,7 +23,7 @@ router.get("/", async (req, res, next) => {
 router.patch("/read-all", async (req, res, next) => {
   try {
     const isRead = req.body?.is_read !== undefined ? Boolean(req.body.is_read) : true;
-    const count = await markAllRead({ sessionId: req.sessionId, isRead });
+    const count = await markAllRead({ userId: req.userId, isRead });
     res.json({ marked_count: count });
   } catch (err) {
     next(err);
@@ -39,7 +39,7 @@ router.patch("/:id/read", async (req, res, next) => {
       return res.status(400).json({ error: "Invalid article id" });
     }
 
-    const row = await markArticleRead({ articleId, sessionId: req.sessionId, isRead });
+    const row = await markArticleRead({ articleId, userId: req.userId, isRead });
     res.json({ id: articleId, is_read: row.is_read, read_at: row.read_at });
   } catch (err) {
     next(err);
