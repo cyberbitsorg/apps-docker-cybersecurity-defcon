@@ -23,17 +23,17 @@ CREATE INDEX idx_articles_published_at ON articles (published_at DESC) WHERE is_
 CREATE INDEX idx_articles_source ON articles (source) WHERE is_deleted = FALSE;
 CREATE INDEX idx_articles_fetched_at ON articles (fetched_at DESC) WHERE is_deleted = FALSE;
 
--- Read state per browser session (no auth required)
+-- Read state per authenticated user
 CREATE TABLE article_read_state (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     article_id  UUID NOT NULL REFERENCES articles(id) ON DELETE CASCADE,
-    session_id  TEXT NOT NULL,
+    user_id     TEXT NOT NULL,
     is_read     BOOLEAN NOT NULL DEFAULT TRUE,
     read_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    UNIQUE (article_id, session_id)
+    UNIQUE (article_id, user_id)
 );
 
-CREATE INDEX idx_read_state_session ON article_read_state (session_id);
+CREATE INDEX idx_read_state_user ON article_read_state (user_id);
 CREATE INDEX idx_read_state_article ON article_read_state (article_id);
 
 -- Defcon score history (for sparkline trend)
