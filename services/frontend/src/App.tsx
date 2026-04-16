@@ -68,7 +68,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
 
           {/* Sidebar */}
-          <aside className="flex flex-col gap-5 pt-7">
+          <aside className="flex flex-col gap-5 pt-7 order-2 lg:order-none">
             {defconLoading ? (
               <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/60 p-5 animate-pulse h-[420px]" />
             ) : defconStatus ? (
@@ -134,7 +134,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </aside>
 
           {/* Article feed */}
-          <section>
+          <section className="order-1 lg:order-none">
             <ArticleFeed
               articles={articles}
               loading={loading}
