@@ -1,10 +1,11 @@
 const pool = require("../pool");
 
 const SOURCE_DISPLAY = {
-  the_hacker_news: "The Hacker News",
-  bleeping_computer: "Bleeping Computer",
-  dark_reading: "Dark Reading",
-  reuters: "Reuters",
+  the_register: "The Register (UK)",
+  help_net_security: "Help Net Security (HR)",
+  infosecurity_magazine: "Infosecurity Magazine (UK)",
+  security_affairs: "Security Affairs (IT)",
+  cybernews: "Cybernews (LT)",
 };
 
 async function getArticles({ limit = 20, offset = 0, source, unreadOnly, userId, minScore, maxScore }) {
