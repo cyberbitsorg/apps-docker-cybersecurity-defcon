@@ -33,9 +33,27 @@ export default function App() {
 
 function Dashboard({ onLogout }: { onLogout: () => void }) {
   const { theme, toggle: toggleTheme } = useTheme();
-  const { articles, lastRefreshed, loading, error, refresh, toggleRead, markAll, page, totalPages, goToPage } = useArticles();
   const { status: defconStatus, history: defconHistory, loading: defconLoading } = useDefcon();
   const [refreshing, setRefreshing] = useState(false);
+
+  const [activeFilters, setActiveFilters] = useState<{ severity: string | null; source: string | null }>({
+    severity: null,
+    source: null,
+  });
+
+  const handleSeverityClick = (label: string) => {
+    setActiveFilters((f) => ({ ...f, severity: f.severity === label ? null : label }));
+  };
+
+  const handleSourceClick = (id: string) => {
+    setActiveFilters((f) => ({ ...f, source: f.source === id ? null : id }));
+  };
+
+  const handleClearFilter = (key: "severity" | "source") => {
+    setActiveFilters((f) => ({ ...f, [key]: null }));
+  };
+
+  const { articles, lastRefreshed, loading, error, refresh, toggleRead, markAll, page, totalPages, goToPage } = useArticles(activeFilters);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -94,7 +112,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
             )}
 
             {/* Severity breakdown */}
-            <SeverityBreakdown articles={articles} />
+            <SeverityBreakdown
+              articles={articles}
+              activeSeverity={activeFilters.severity}
+              onSeverityClick={handleSeverityClick}
+            />
 
             {/* Top threats */}
             <TopThreats articles={articles} />
@@ -111,20 +133,37 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                   { id: "help_net_security",  label: "Help Net Security",  color: "#8b5cf6" },
                   { id: "security_week",      label: "Security Week",      color: "#10b981" },
                   { id: "the_hacker_news",    label: "The Hacker News",    color: "#e11d48" },
-                ].map((s) => (
-                  <div key={s.id} className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
-                    <span className="text-xs text-gray-600 dark:text-gray-400">{s.label}</span>
-                    <span className="ml-auto text-xs text-gray-400 dark:text-gray-600">
-                      {articles.filter((a) => a.source === s.id).length}
-                    </span>
-                  </div>
-                ))}
+                ].map((s) => {
+                  const isActive = activeFilters.source === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => handleSourceClick(s.id)}
+                      className={`flex items-center gap-2 rounded px-1.5 py-0.5 -mx-1.5 text-left transition-colors cursor-pointer w-full ${
+                        isActive
+                          ? "bg-gray-100 dark:bg-gray-800"
+                          : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                      }`}
+                    >
+                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />
+                      <span className={`text-xs ${isActive ? "text-gray-900 dark:text-gray-100 font-medium" : "text-gray-600 dark:text-gray-400"}`}>
+                        {s.label}
+                      </span>
+                      <span className="ml-auto text-xs text-gray-400 dark:text-gray-600">
+                        {articles.filter((a) => a.source === s.id).length}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Source distribution donut */}
-            <SourceDistribution articles={articles} />
+            <SourceDistribution
+              articles={articles}
+              activeSource={activeFilters.source}
+              onSourceClick={handleSourceClick}
+            />
 
             {/* Trending keywords */}
             <TrendingKeywords articles={articles} />
@@ -144,6 +183,8 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
               onToggleRead={toggleRead}
               onMarkAll={markAll}
               onGoToPage={goToPage}
+              activeFilters={activeFilters}
+              onClearFilter={handleClearFilter}
             />
           </section>
         </div>
