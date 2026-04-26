@@ -1,17 +1,17 @@
 export const SOURCE_COLORS: Record<string, string> = {
-  bleeping_computer: "#f59e0b",  // amber
-  dark_reading: "#6366f1",       // indigo
-  help_net_security: "#8b5cf6",  // violet
-  security_week: "#10b981",      // emerald
-  the_hacker_news: "#e11d48",    // rose
+  the_register:          "#06b6d4",  // cyan
+  help_net_security:     "#8b5cf6",  // violet
+  infosecurity_magazine: "#f97316",  // orange
+  security_affairs:      "#e11d48",  // rose
+  cybernews:             "#10b981",  // emerald
 };
 
 export const SOURCE_LABELS: Record<string, string> = {
-  bleeping_computer: "BC",
-  dark_reading: "DR",
-  help_net_security: "HNS",
-  security_week: "SW",
-  the_hacker_news: "THN",
+  the_register:          "TR",
+  help_net_security:     "HNS",
+  infosecurity_magazine: "IM",
+  security_affairs:      "SA",
+  cybernews:             "CN",
 };
 
 export const DEFCON_LEVELS = {
