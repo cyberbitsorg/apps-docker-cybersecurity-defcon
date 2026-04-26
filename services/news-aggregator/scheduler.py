@@ -11,7 +11,6 @@ from cache.redis_client import get_redis, publish_cache_invalidation
 from pipeline.deduplicator import is_duplicate, fingerprint as make_fingerprint, _token_set, _jaccard, _temporal_conflict, JACCARD_THRESHOLD
 from pipeline.normalizer import normalize
 from pipeline.scorer import compute_global_score
-from feeds.cybernews import CybernewsFeed
 from feeds.help_net_security import HelpNetSecurityFeed
 from feeds.infosecurity_magazine import InfosecurityMagazineFeed
 from feeds.security_affairs import SecurityAffairsFeed
@@ -24,7 +23,6 @@ FEEDS = [
     HelpNetSecurityFeed(),
     InfosecurityMagazineFeed(),
     SecurityAffairsFeed(),
-    CybernewsFeed(),
 ]
 
 scheduler = AsyncIOScheduler()

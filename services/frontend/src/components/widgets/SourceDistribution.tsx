@@ -12,7 +12,6 @@ const SOURCES = [
   { id: "help_net_security",     label: "Help Net Security (HR)",     color: "#8b5cf6" },
   { id: "infosecurity_magazine", label: "Infosecurity Magazine (UK)", color: "#f97316" },
   { id: "security_affairs",      label: "Security Affairs (IT)",      color: "#e11d48" },
-  { id: "cybernews",             label: "Cybernews (LT)",             color: "#10b981" },
 ];
 
 const SIZE = 64;
