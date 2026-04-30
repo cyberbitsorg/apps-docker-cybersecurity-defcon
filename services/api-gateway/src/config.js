@@ -13,4 +13,5 @@ module.exports = {
   corsOrigin: process.env.CORS_ORIGIN || "http://localhost:5173",
   authSecret: required("AUTH_SECRET"),
   adminPassword: required("ADMIN_PASSWORD"),
+  internalSecret: required("INTERNAL_SECRET"),
 };

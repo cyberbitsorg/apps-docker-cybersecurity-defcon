@@ -16,6 +16,11 @@ resource "random_password" "auth_secret" {
   special = false
 }
 
+resource "random_password" "internal_secret" {
+  length  = 64
+  special = false
+}
+
 # =============================================================================
 # Configuration files
 # =============================================================================
@@ -214,6 +219,7 @@ resource "docker_container" "news_aggregator" {
     "API_GATEWAY_URL=http://api-gateway:4000",
     "FETCH_INTERVAL_MINUTES=${var.fetch_interval_minutes}",
     "LOG_LEVEL=${var.log_level}",
+    "INTERNAL_SECRET=${random_password.internal_secret.result}",
   ]
 
   networks_advanced {
@@ -264,6 +270,7 @@ resource "docker_container" "api_gateway" {
     "CORS_ORIGIN=https://${var.domain}",
     "AUTH_SECRET=${random_password.auth_secret.result}",
     "ADMIN_PASSWORD=${var.admin_password}",
+    "INTERNAL_SECRET=${random_password.internal_secret.result}",
   ]
 
   # Internal network, reachable by news-aggregator and for DB/Redis access

@@ -48,6 +48,7 @@ services:
       API_GATEWAY_URL: http://api-gateway:4000
       FETCH_INTERVAL_MINUTES: "${FETCH_INTERVAL_MINUTES:-60}"
       LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+      INTERNAL_SECRET: ${INTERNAL_SECRET}
     volumes:
       - /etc/localtime:/etc/localtime:ro
     depends_on:
@@ -74,6 +75,7 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
       AUTH_SECRET: ${AUTH_SECRET}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      INTERNAL_SECRET: ${INTERNAL_SECRET}
     volumes:
       - /etc/localtime:/etc/localtime:ro
     ports:
