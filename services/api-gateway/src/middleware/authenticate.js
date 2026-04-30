@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require("uuid");
 const config = require("../config");
 
 module.exports = function authenticate(req, res, next) {
@@ -8,7 +9,7 @@ module.exports = function authenticate(req, res, next) {
   try {
     const payload = jwt.verify(token, config.authSecret);
     req.userId = payload.sub || "admin";
-    req.sessionId = payload.jti;
+    req.sessionId = payload.jti || uuidv4();
     next();
   } catch {
     res.status(401).json({ error: "Invalid or expired token" });

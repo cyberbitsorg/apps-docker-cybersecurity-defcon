@@ -23,17 +23,16 @@ app.use(helmet());
 app.use(cors({
   origin: config.corsOrigin,
   methods: ["GET", "POST", "PATCH"],
-  allowedHeaders: ["Content-Type", "X-Session-ID", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.use(express.json());
-app.use(sessionIdMiddleware);
 
 // Public routes
-app.use("/api/v1/auth", loginLimiter, authRouter);
+app.use("/api/v1/auth", sessionIdMiddleware, loginLimiter, authRouter);
 app.use("/api/v1/health", healthRouter);
 app.use("/internal", internalRouter);
 
-// All /api/v1/* routes below require a valid JWT
+// All /api/v1/* routes below require a valid JWT — session ID comes from JWT jti
 app.use("/api/v1", authenticate);
 app.use("/api/v1/articles", articlesRouter);
 app.use("/api/v1/defcon", defconRouter);
