@@ -24,12 +24,14 @@ services:
     image: redis:7-alpine
     container_name: defcon_redis
     restart: unless-stopped
-    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
       - /etc/localtime:/etc/localtime:ro
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a $REDIS_PASSWORD ping"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -44,7 +46,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://defcon:${POSTGRES_PASSWORD}@postgres:5432/defcon_db
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       API_GATEWAY_URL: http://api-gateway:4000
       FETCH_INTERVAL_MINUTES: "${FETCH_INTERVAL_MINUTES:-60}"
       LOG_LEVEL: "${LOG_LEVEL:-INFO}"
@@ -67,7 +69,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://defcon:${POSTGRES_PASSWORD}@postgres:5432/defcon_db
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       AGGREGATOR_URL: http://news-aggregator:8000
       PORT: "4000"
       NODE_ENV: production

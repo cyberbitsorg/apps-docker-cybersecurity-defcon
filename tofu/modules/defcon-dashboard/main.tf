@@ -21,6 +21,11 @@ resource "random_password" "internal_secret" {
   special = false
 }
 
+resource "random_password" "redis" {
+  length  = 32
+  special = false
+}
+
 # =============================================================================
 # Configuration files
 # =============================================================================
@@ -174,6 +179,7 @@ resource "docker_container" "redis" {
     "--appendonly", "yes",
     "--maxmemory", var.redis_maxmemory,
     "--maxmemory-policy", var.redis_maxmemory_policy,
+    "--requirepass", random_password.redis.result,
   ]
 
   mounts {
@@ -188,7 +194,7 @@ resource "docker_container" "redis" {
   }
 
   healthcheck {
-    test         = ["CMD", "redis-cli", "ping"]
+    test         = ["CMD-SHELL", "redis-cli -a '${random_password.redis.result}' ping"]
     interval     = "10s"
     timeout      = "3s"
     retries      = 5
@@ -215,7 +221,7 @@ resource "docker_container" "news_aggregator" {
 
   env = [
     "DATABASE_URL=postgresql://defcon:${random_password.postgres.result}@postgres:5432/defcon_db",
-    "REDIS_URL=redis://redis:6379",
+    "REDIS_URL=redis://:${random_password.redis.result}@redis:6379",
     "API_GATEWAY_URL=http://api-gateway:4000",
     "FETCH_INTERVAL_MINUTES=${var.fetch_interval_minutes}",
     "LOG_LEVEL=${var.log_level}",
@@ -258,7 +264,7 @@ resource "docker_container" "api_gateway" {
 
   env = [
     "DATABASE_URL=postgresql://defcon:${random_password.postgres.result}@postgres:5432/defcon_db",
-    "REDIS_URL=redis://redis:6379",
+    "REDIS_URL=redis://:${random_password.redis.result}@redis:6379",
     "AGGREGATOR_URL=http://news-aggregator:8000",
     "PORT=4000",
     "NODE_ENV=production",
