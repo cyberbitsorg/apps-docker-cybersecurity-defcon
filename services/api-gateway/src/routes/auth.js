@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require("uuid");
 const config = require("../config");
 
 const router = Router();
@@ -16,7 +17,11 @@ router.post("/login", (req, res) => {
   if (!password || !timingSafeCompare(password, config.adminPassword)) {
     return res.status(401).json({ error: "Invalid password" });
   }
-  const token = jwt.sign({ sub: "admin" }, config.authSecret, { expiresIn: "12h" });
+  const token = jwt.sign(
+    { sub: "admin", jti: uuidv4() },
+    config.authSecret,
+    { expiresIn: "12h" }
+  );
   res.json({ token });
 });
 

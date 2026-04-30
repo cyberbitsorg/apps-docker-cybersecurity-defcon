@@ -8,6 +8,7 @@ module.exports = function authenticate(req, res, next) {
   try {
     const payload = jwt.verify(token, config.authSecret);
     req.userId = payload.sub || "admin";
+    req.sessionId = payload.jti;
     next();
   } catch {
     res.status(401).json({ error: "Invalid or expired token" });
