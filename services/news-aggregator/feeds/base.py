@@ -52,7 +52,7 @@ class RssFeedParser(BaseFeedParser):
 
     async def fetch(self) -> list[RawArticle]:
         delays = [5, 15, 45]
-        async with httpx.AsyncClient(timeout=30, follow_redirects=True) as client:
+        async with httpx.AsyncClient(timeout=30, follow_redirects=True, max_redirects=5) as client:
             for attempt, delay in enumerate(delays + [None], start=1):
                 try:
                     response = await client.get(

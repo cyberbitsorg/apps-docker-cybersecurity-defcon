@@ -222,7 +222,6 @@ resource "docker_container" "news_aggregator" {
   env = [
     "DATABASE_URL=postgresql://defcon:${random_password.postgres.result}@postgres:5432/defcon_db",
     "REDIS_URL=redis://:${random_password.redis.result}@redis:6379",
-    "API_GATEWAY_URL=http://api-gateway:4000",
     "FETCH_INTERVAL_MINUTES=${var.fetch_interval_minutes}",
     "LOG_LEVEL=${var.log_level}",
     "INTERNAL_SECRET=${random_password.internal_secret.result}",
