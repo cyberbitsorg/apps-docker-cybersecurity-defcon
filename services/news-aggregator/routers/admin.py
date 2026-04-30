@@ -1,4 +1,7 @@
-from fastapi import APIRouter
+import hmac
+import os
+
+from fastapi import APIRouter, Header, HTTPException
 
 from scheduler import reschedule
 
@@ -13,7 +16,10 @@ def set_fetch_fn(fn):
 
 
 @router.post("/trigger")
-async def trigger_refresh():
+async def trigger_refresh(x_internal_token: str = Header(default="")):
+    internal_secret = os.environ.get("INTERNAL_SECRET", "")
+    if not internal_secret or not hmac.compare_digest(x_internal_token, internal_secret):
+        raise HTTPException(status_code=401, detail="Unauthorized")
     if _run_fetch_cycle:
         await _run_fetch_cycle()
         reschedule()
