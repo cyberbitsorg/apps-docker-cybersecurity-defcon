@@ -351,7 +351,7 @@ resource "docker_container" "frontend" {
   }
 
   healthcheck {
-    test         = ["CMD-SHELL", "wget -qO /dev/null http://127.0.0.1/ || exit 1"]
+    test         = ["CMD-SHELL", "wget -qO /dev/null http://127.0.0.1:8080/ || exit 1"]
     interval     = "30s"
     timeout      = "5s"
     retries      = 3
