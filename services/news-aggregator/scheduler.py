@@ -8,7 +8,7 @@ from db.connection import get_pool
 from db.articles import upsert_article, upsert_dedup_log, trim_old_articles, get_recent_articles, get_new_article_count_since
 from db.defcon import insert_defcon_history
 from cache.redis_client import get_redis, publish_cache_invalidation
-from pipeline.deduplicator import is_duplicate, fingerprint as make_fingerprint, _token_set, _jaccard, _temporal_conflict, JACCARD_THRESHOLD
+from pipeline.deduplicator import is_duplicate, fingerprint as make_fingerprint, _token_set, _jaccard, _temporal_conflict, JACCARD_THRESHOLD, RECENT_TITLES_KEY
 from pipeline.normalizer import normalize
 from pipeline.scorer import compute_global_score
 from feeds.bleeping_computer import BleepingComputerFeed
@@ -98,7 +98,12 @@ async def run_fetch_cycle():
     logger.info(f"Fetch cycle done: {inserted} inserted, {skipped} skipped/duplicate")
 
     # --- Step 3: trim, score, notify ---
-    await trim_old_articles(pool, keep=100, per_source=15)
+    trimmed_titles = await trim_old_articles(pool, keep=100, per_source=15)
+    if trimmed_titles:
+        pipe = redis.pipeline(transaction=False)
+        for title in trimmed_titles:
+            pipe.lrem(RECENT_TITLES_KEY, 1, title)
+        await pipe.execute()
 
     since = datetime.now(timezone.utc) - timedelta(hours=1)
     new_count = await get_new_article_count_since(pool, since)

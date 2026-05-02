@@ -51,12 +51,14 @@ async def upsert_dedup_log(pool: asyncpg.Pool, fingerprint: str, canonical_id: s
         logger.warning(f"upsert_dedup_log error: {e}")
 
 
-async def trim_old_articles(pool: asyncpg.Pool, keep: int = 100, per_source: int = 15):
+async def trim_old_articles(pool: asyncpg.Pool, keep: int = 100, per_source: int = 15) -> list[str]:
     """
     Soft-delete old articles while guaranteeing each source keeps at least
     `per_source` recent articles. Then fill remaining slots by recency.
+    Returns titles of newly soft-deleted articles so callers can evict them
+    from the Redis L2 dedup cache.
     """
-    await pool.execute(
+    rows = await pool.fetch(
         """
         WITH per_source_keep AS (
             -- Top `per_source` articles per source
@@ -84,10 +86,12 @@ async def trim_old_articles(pool: asyncpg.Pool, keep: int = 100, per_source: int
         SET is_deleted = TRUE
         WHERE id NOT IN (SELECT id FROM keep_ids)
         AND is_deleted = FALSE
+        RETURNING title
         """,
         keep,
         per_source,
     )
+    return [row["title"] for row in rows]
 
 
 async def get_recent_articles(pool: asyncpg.Pool, limit: int = 20) -> list[dict]:
