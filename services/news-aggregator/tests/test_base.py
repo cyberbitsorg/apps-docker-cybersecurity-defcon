@@ -90,3 +90,9 @@ async def test_rss_feed_parser_returns_empty_on_http_error():
         articles = await feed.fetch()
 
     assert articles == []
+
+
+def test_bleeping_computer_feed_attributes():
+    from feeds.bleeping_computer import BleepingComputerFeed
+    assert BleepingComputerFeed.source_id == "bleeping_computer"
+    assert BleepingComputerFeed.feed_url == "https://www.bleepingcomputer.com/feed/"
