@@ -174,10 +174,10 @@ tofu destroy
 
 | Source | Country | Feed |
 |---|---|---|
-| HackRead | PK | RSS `https://hackread.com/feed/` |
-| Infosecurity Magazine | UK | RSS `https://www.infosecurity-magazine.com/rss/news/` |
+| Bleeping Computer | US | RSS `https://www.bleepingcomputer.com/feed/` |
+| Hacker News | IN | Atom `https://thehackernews.com/feeds/posts/default` |
+| HackRead | UK | RSS `https://hackread.com/feed/` |
 | Security Affairs | IT | WordPress API `https://securityaffairs.com/wp-json/wp/v2/posts` |
-| TechRadar Security | UK | RSS `https://www.techradar.com/feeds/tag/security` |
 | The Register | UK | Atom `https://www.theregister.com/security/headlines.atom` |
 
 ## Data pipeline
