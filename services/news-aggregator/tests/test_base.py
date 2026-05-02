@@ -96,3 +96,9 @@ def test_bleeping_computer_feed_attributes():
     from feeds.bleeping_computer import BleepingComputerFeed
     assert BleepingComputerFeed.source_id == "bleeping_computer"
     assert BleepingComputerFeed.feed_url == "https://www.bleepingcomputer.com/feed/"
+
+
+def test_hacker_news_feed_attributes():
+    from feeds.hacker_news import HackerNewsFeed
+    assert HackerNewsFeed.source_id == "hacker_news"
+    assert HackerNewsFeed.feed_url == "https://thehackernews.com/feeds/posts/default"
