@@ -185,7 +185,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           </aside>
 
           {/* Article feed */}
-          <section className="order-2 lg:order-none min-w-0">
+          <section className="order-2 lg:order-none min-w-0 pt-7">
             <ArticleFeed
               articles={articles}
               loading={loading}
