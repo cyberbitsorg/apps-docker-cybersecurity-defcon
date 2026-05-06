@@ -33,11 +33,11 @@ function arcPath(r: number, startDeg: number, endDeg: number): string {
 
 // Five coloured segments, each 48° (240 / 5)
 const SEGMENTS = [
-  { color: "#22c55e", start: START_ANGLE,       end: START_ANGLE + 48       }, // LOW
-  { color: "#3b82f6", start: START_ANGLE + 48,  end: START_ANGLE + 96       }, // GUARDED
-  { color: "#f59e0b", start: START_ANGLE + 96,  end: START_ANGLE + 144      }, // ELEVATED
-  { color: "#ea580c", start: START_ANGLE + 144, end: START_ANGLE + 192      }, // HIGH
-  { color: "#dc2626", start: START_ANGLE + 192, end: START_ANGLE + 240      }, // CRITICAL
+  { color: "#3b82f6", start: START_ANGLE,       end: START_ANGLE + 48  }, // DEFCON 5 Fade Out
+  { color: "#22c55e", start: START_ANGLE + 48,  end: START_ANGLE + 96  }, // DEFCON 4 Double Take
+  { color: "#eab308", start: START_ANGLE + 96,  end: START_ANGLE + 144 }, // DEFCON 3 Round House
+  { color: "#dc2626", start: START_ANGLE + 144, end: START_ANGLE + 192 }, // DEFCON 2 Fast Pace
+  { color: "#ffffff", start: START_ANGLE + 192, end: START_ANGLE + 240 }, // DEFCON 1 Cocked Pistol
 ];
 
 export function DefconGauge({ status, history }: DefconGaugeProps) {
@@ -76,8 +76,8 @@ export function DefconGauge({ status, history }: DefconGaugeProps) {
       </div>
 
       {/* SVG Gauge */}
-      <div className="flex justify-center">
-        <svg viewBox="0 0 200 155" className="w-full max-w-[240px]" aria-label={`Defcon level ${status.level}: ${level.label}`}>
+      <div className={`flex justify-center${status.level === 1 ? " defcon1-glow rounded-full" : ""}`}>
+        <svg viewBox="0 0 200 155" className="w-full max-w-[240px]" aria-label={`DEFCON ${status.level}: ${level.term}`}>
 
           {/* Background track */}
           <path
@@ -136,11 +136,11 @@ export function DefconGauge({ status, history }: DefconGaugeProps) {
             textAnchor="middle"
             fontSize="9"
             fontWeight="600"
-            letterSpacing="3"
+            letterSpacing="1"
             fill={level.color}
             opacity={0.8}
           >
-            {level.label}
+            {level.term}
           </text>
           <text
             x={CX} y={CY + 58}
