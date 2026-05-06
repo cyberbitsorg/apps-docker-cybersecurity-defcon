@@ -197,24 +197,34 @@ Temporal conflicts (different months/years in titles) are never flagged as dupli
 
 ### 3. Score (DEFCON 0–100)
 
-Each article gets a composite score from four equally weighted dimensions (25 points each):
+Scoring runs at two levels: each article gets its own score, and a separate global score determines the current DEFCON level.
 
-| Dimension | Logic |
+Per-article score (0-100). Based purely on content, three equally weighted dimensions.
+
+| Dimension | Measures |
 |---|---|
-| **Volume** | New articles in the last hour / 12 |
-| **CVE Severity** | CVSS scores extracted from text, or inferred from severity keywords |
-| **Impact** | Regex scan for: millions affected, critical infrastructure, active exploitation, large breaches |
-| **Keywords** | 3-tier threat vocabulary: tier 1 (+5), tier 2 (+3), tier 3 (+1) |
+| CVE Severity | CVSS scores extracted from the text, or inferred from severity keywords (critical/high/medium/low) |
+| Impact | Scale signals: millions affected, critical infrastructure targeted, active exploitation, large data breaches |
+| Keywords | 3-tier threat vocabulary — nation-state attacks and zero-days score much higher than generic security terms |
 
-The global DEFCON level is computed from the same dimensions across the recent article window:
+Global DEFCON score (0-100). Four dimensions, reflecting the current threat landscape across the recent article window.
 
-| Score | Level | Label | Color |
+| Dimension | Measures |
+|---|---|
+| Volume spike | How current fetch activity compares to the rolling 7-day baseline. A sudden surge signals breaking news |
+| CVE Severity | Average CVE/severity level across recent articles |
+| Impact | Average impact signals across recent articles |
+| Keywords | Average keyword threat density across recent articles |
+
+The volume dimension uses a rolling baseline so weekends and quiet periods don't artificially deflate the score; what matters is whether activity is unusually high *relative to normal*, not the raw count.
+
+| Score | DEFCON | Label | Meaning |
 |---|---|---|---|
-| 0–19 | 1 | LOW | Green |
-| 20–39 | 2 | GUARDED | Blue |
-| 40–59 | 3 | ELEVATED | Amber |
-| 60–79 | 4 | HIGH | Orange |
-| 80–100 | 5 | CRITICAL | Red |
+| 80-100 | 1 | Cocked Pistol | Critical. Active crisis-level threat |
+| 60-79 | 2 | Fast Pace | High. Serious ongoing incidents |
+| 40-59 | 3 | Round House | Elevated. Notable threats in play |
+| 20-39 | 4 | Double Take | Guarded. Routine security activity |
+| 0-19 | 5 | Fade Out | Normal. No significant signals |
 
 ### 4. Store
 
