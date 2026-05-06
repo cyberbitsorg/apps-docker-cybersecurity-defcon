@@ -1,12 +1,18 @@
 const pool = require("../pool");
 
-const LEVEL_LABELS = { 1: "LOW", 2: "GUARDED", 3: "ELEVATED", 4: "HIGH", 5: "CRITICAL" };
+const LEVEL_LABELS = {
+  1: "Cocked Pistol",
+  2: "Fast Pace",
+  3: "Round House",
+  4: "Double Take",
+  5: "Fade Out",
+};
 const LEVEL_COLORS = {
-  1: "#22c55e",
-  2: "#3b82f6",
-  3: "#f59e0b",
-  4: "#ea580c",
-  5: "#dc2626",
+  1: "#ffffff",
+  2: "#dc2626",
+  3: "#eab308",
+  4: "#22c55e",
+  5: "#3b82f6",
 };
 
 async function getCurrentDefcon() {
@@ -18,7 +24,7 @@ async function getCurrentDefcon() {
   );
 
   if (!result.rows.length) {
-    return { score: 0, level: 1, label: "LOW", color: LEVEL_COLORS[1], computed_at: null, factors: {}, trend: "stable" };
+    return { score: 0, level: 5, label: "Fade Out", color: "#3b82f6", computed_at: null, factors: {}, trend: "stable" };
   }
 
   const row = result.rows[0];
