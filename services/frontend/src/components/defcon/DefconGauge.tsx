@@ -1,4 +1,4 @@
-import { LineChart, Line, ResponsiveContainer, Tooltip } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { DEFCON_LEVELS } from "../../lib/constants";
 import type { DefconStatus, DefconHistoryPoint } from "../../types/defcon";
@@ -60,6 +60,14 @@ export function DefconGauge({ status, history }: DefconGaugeProps) {
     { label: "Impact",   value: factors.impact_score   },
     { label: "Keywords", value: factors.keyword_score  },
   ] : [];
+
+  const sparkScores = history.map(h => h.score);
+  const minScore = sparkScores.length ? Math.min(...sparkScores) : 0;
+  const maxScore = sparkScores.length ? Math.max(...sparkScores) : 100;
+  const yPad = Math.max((maxScore - minScore) * 0.15, 1);
+  const yDomain: [number, number] = [minScore - yPad, maxScore + yPad];
+  const midIdx = Math.floor((history.length - 1) / 2);
+  const gradId = `areaGrad-${status.level}`;
 
   return (
     <div className={`rounded-xl border ${level.border} ${level.bg} p-5 flex flex-col gap-4`}>
@@ -177,23 +185,57 @@ export function DefconGauge({ status, history }: DefconGaugeProps) {
       {history.length > 1 && (
         <div>
           <p className="text-xs text-gray-500 dark:text-gray-600 mb-1">24h trend</p>
-          <div style={{ height: 40 }} className="min-w-0 overflow-hidden">
-            <ResponsiveContainer width="99%" height={40}>
-              <LineChart data={history} margin={{ top: 4, bottom: 4, left: 0, right: 0 }}>
+          <div style={{ height: 56 }} className="min-w-0 overflow-hidden">
+            <ResponsiveContainer width="99%" height={56}>
+              <AreaChart data={history} margin={{ top: 4, bottom: 0, left: 0, right: 2 }}>
+                <defs>
+                  <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={level.color} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={level.color} stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  ticks={[0, midIdx, history.length - 1]}
+                  tickFormatter={(i: number) =>
+                    i === 0 ? "24h ago" : i === midIdx ? "12h" : "now"
+                  }
+                  tick={{ fontSize: 8, fill: "#4b5563" }}
+                  axisLine={{ stroke: "#374151" }}
+                  tickLine={false}
+                  height={14}
+                />
+                <YAxis
+                  domain={yDomain}
+                  ticks={[minScore, maxScore]}
+                  tickFormatter={(v: number) => v.toFixed(0)}
+                  tick={{ fontSize: 8, fill: "#4b5563" }}
+                  axisLine={false}
+                  tickLine={false}
+                  width={22}
+                />
                 <Tooltip
                   contentStyle={{ background: "#111827", border: "1px solid #374151", borderRadius: 6, fontSize: 11 }}
                   formatter={(v: number) => [v.toFixed(1), "Score"]}
-                  labelFormatter={() => ""}
+                  labelFormatter={(idx: number) => {
+                    const point = history[idx];
+                    if (!point) return "";
+                    return new Date(point.computed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                  }}
                 />
-                <Line
+                <Area
                   type="monotone"
                   dataKey="score"
                   stroke={level.color}
                   strokeWidth={1.5}
-                  dot={false}
+                  fill={`url(#${gradId})`}
+                  dot={(props: any) =>
+                    props.index === history.length - 1
+                      ? <circle key="now" cx={props.cx} cy={props.cy} r={2.5} fill={level.color} />
+                      : <g key={props.index} />
+                  }
                   isAnimationActive={false}
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
