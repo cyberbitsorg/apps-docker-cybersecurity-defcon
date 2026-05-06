@@ -8,18 +8,23 @@ import re
 from dataclasses import dataclass
 
 TIER1 = [
-    "zero-day", "zero day", "nation-state", "state-sponsored",
+    "zero-day", "zero day", "nation-state", "nation state",
+    "state-sponsored", "state sponsored",
     "ransomware attack", "critical infrastructure",
 ]
 TIER2 = [
     "ransomware", "backdoor", "supply chain", "apt", "wiper",
     "botnet", "ddos", "rce", "remote code execution",
+    "rootkit", "privilege escalation", "lateral movement",
 ]
 TIER3 = [
     "vulnerability", "exploit", "patch", "breach", "malware",
     "phishing", "cve", "trojan", "spyware",
+    "data leak", "threat actor", "unauthorized access",
 ]
 # "zero-day" intentionally absent from TIER3 — already scored via TIER1
+# Short terms that appear as substrings in unrelated words ("rce" in "force", "apt" in "capture")
+_WB_REQUIRED = frozenset({"rce", "apt"})
 
 SEVERITY_WORDS = {"critical": 9.0, "high": 7.0, "medium": 5.0, "low": 2.5}
 
@@ -107,14 +112,14 @@ def _extract_impact_raw(text: str) -> int:
         raw += 6
     if re.search(r"power grid|hospital|water treatment|government|military|critical infrastructure", text):
         raw += 5
-    if re.search(r"\d+\s*million", text):
+    if re.search(r"(?:\d[\d,.]*\s*)?millions?\b", text):
         raw += 4
     m = re.search(r"(\d+)\s*countries", text)
     if m and int(m.group(1)) > 5:
         raw += 4
-    if re.search(r"data breach|leaked|exposed", text):
+    if re.search(r"data breach|breached|breaches|\bbreach\b|leaked|exposed|exposing", text):
         raw += 3
-    if re.search(r"\d{6,}\s*(users|records|devices|systems)", text):
+    if re.search(r"(?:\d{6,}|\d{3,}[kK])\s*(users|records|devices|systems)", text):
         raw += 3
     return raw
 
@@ -122,15 +127,14 @@ def _extract_impact_raw(text: str) -> int:
 def _extract_keyword_raw(text: str) -> int:
     """Weighted keyword score from tiered threat vocabulary."""
     raw = 0
-    for kw in TIER1:
-        if kw in text:
-            raw += 8
-    for kw in TIER2:
-        if kw in text:
-            raw += 4
-    for kw in TIER3:
-        if kw in text:
-            raw += 1
+    for tier, pts in ((TIER1, 8), (TIER2, 4), (TIER3, 1)):
+        for kw in tier:
+            if kw in _WB_REQUIRED:
+                if re.search(r"\b" + re.escape(kw) + r"\b", text):
+                    raw += pts
+            else:
+                if kw in text:
+                    raw += pts
     return raw
 
 

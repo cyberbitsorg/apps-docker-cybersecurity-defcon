@@ -104,6 +104,20 @@ def test_extract_impact_raw_data_breach():
 def test_extract_impact_raw_large_record_count():
     assert _extract_impact_raw("1500000 records stolen") == 3
 
+def test_extract_impact_raw_bare_millions():
+    # "millions" without a leading digit — the old regex missed this
+    assert _extract_impact_raw("millions of users affected") == 4
+
+def test_extract_impact_raw_breached():
+    assert _extract_impact_raw("shinyhunters breached instructure canvas") == 3
+
+def test_extract_impact_raw_breaches():
+    assert _extract_impact_raw("vimeo breaches impact users") == 3
+
+def test_extract_impact_raw_100k_notation():
+    # "100K" shorthand — the old regex only matched 6+ digit numbers
+    assert _extract_impact_raw("100K records stolen") == 3
+
 def test_extract_impact_raw_no_signals():
     assert _extract_impact_raw("minor software advisory") == 0
 
@@ -133,6 +147,20 @@ def test_extract_keyword_raw_tier3():
 
 def test_extract_keyword_raw_no_keywords():
     assert _extract_keyword_raw("weather update today") == 0
+
+def test_extract_keyword_raw_rce_no_false_positive():
+    # "rce" appears as substring in "force", "source", "resource" — must not score
+    assert _extract_keyword_raw("force the browser to coerce resource access") == 0
+
+def test_extract_keyword_raw_apt_no_false_positive():
+    # "apt" as substring inside words like "capture", "captain", "chapter" — must not score
+    assert _extract_keyword_raw("capture a chapter with captains aboard") == 0
+
+def test_extract_keyword_raw_rce_standalone_scores():
+    assert _extract_keyword_raw("rce exploited in the wild") == 5  # rce(4) + exploit(1)
+
+def test_extract_keyword_raw_apt_standalone_scores():
+    assert _extract_keyword_raw("apt group targets government") == 4
 
 
 # --- compute_article_score ---
