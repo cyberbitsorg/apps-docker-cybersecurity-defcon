@@ -63,6 +63,10 @@ def test_extract_cvss_version_qualifier_ignored():
     # "CVSSv3.1: 9.8" — should return 9.8 (the score), not 3.1 (the version)
     assert _extract_cvss("CVSSv3.1: 9.8 critical flaw") == pytest.approx(9.8)
 
+def test_extract_cvss_vector_string_no_false_positive():
+    # Bare CVSS vector without a numeric score should return 0, not a version digit
+    assert _extract_cvss("CVSSv3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H") == 0.0
+
 def test_extract_cvss_out_of_range_ignored():
     # Out-of-range CVSS should not be returned; fallback to severity words or 0
     assert _extract_cvss("cvss 11.0 flaw") == 0.0

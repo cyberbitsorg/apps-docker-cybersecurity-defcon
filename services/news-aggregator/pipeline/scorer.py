@@ -85,7 +85,7 @@ def _extract_cvss(text: str) -> float:
     scores = []
     for context_match in re.finditer(r"cvss[^\n]{0,50}", text, re.IGNORECASE):
         context = context_match.group(0)
-        for num_match in re.finditer(r"\b(\d+\.?\d*)\b", context):
+        for num_match in re.finditer(r"(?<![.\w])(\d+\.?\d*)(?!\w)", context):
             try:
                 val = float(num_match.group(1))
                 if 0.0 <= val <= 10.0:
