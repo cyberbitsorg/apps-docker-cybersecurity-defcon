@@ -1,6 +1,7 @@
 import { ExternalLink, CheckCircle2, Circle } from "lucide-react";
 import { ArticleSource } from "./ArticleSource";
 import { cn, formatRelativeTime } from "../../lib/utils";
+import { DEFCON_LEVELS, scoreToLevel } from "../../lib/constants";
 import type { Article } from "../../types/article";
 
 interface ArticleCardProps {
@@ -30,22 +31,19 @@ export function ArticleCard({ article, onToggleRead }: ArticleCardProps) {
         <div className="flex items-center gap-2 mb-2">
           <ArticleSource source={source} sourceDisplay={source_display} />
           <span className="text-xs text-gray-400 dark:text-gray-600">{formatRelativeTime(published_at)}</span>
-          {defcon_score > 0 && (
-            <span className={cn(
-              "ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded",
-              defcon_score >= 80
-                ? "text-red-600 bg-red-600/10 border border-red-600/20"
-                : defcon_score >= 60
-                  ? "text-orange-600 bg-orange-600/10 border border-orange-600/20"
-                  : defcon_score >= 40
-                    ? "text-amber-500 bg-amber-500/10 border border-amber-500/20"
-                    : defcon_score >= 20
-                      ? "text-blue-500 bg-blue-500/10 border border-blue-500/20"
-                      : "text-green-500 bg-green-500/10 border border-green-500/20"
-            )}>
-              {Math.round(defcon_score)}
-            </span>
-          )}
+          {defcon_score > 0 && (() => {
+            const lvl = DEFCON_LEVELS[scoreToLevel(defcon_score)];
+            const isDefcon1 = scoreToLevel(defcon_score) === 1;
+            return (
+              <span className={cn(
+                "ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded",
+                lvl.text, lvl.bg, "border", lvl.border,
+                isDefcon1 && "defcon1-glow"
+              )}>
+                {Math.round(defcon_score)}
+              </span>
+            );
+          })()}
         </div>
 
         {/* Title */}
