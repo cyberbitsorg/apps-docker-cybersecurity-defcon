@@ -1,4 +1,5 @@
 import { cn } from "../../lib/utils";
+import { DEFCON_LEVELS, scoreToLevel } from "../../lib/constants";
 import type { Article } from "../../types/article";
 
 interface SeverityBreakdownProps {
@@ -7,28 +8,22 @@ interface SeverityBreakdownProps {
   onSeverityClick: (label: string) => void;
 }
 
-const LEVELS = [
-  { min: 80, color: "#dc2626", bg: "bg-red-600",    label: "Critical" },
-  { min: 60, color: "#ea580c", bg: "bg-orange-600", label: "High"     },
-  { min: 40, color: "#f59e0b", bg: "bg-amber-500",  label: "Elevated" },
-  { min: 20, color: "#3b82f6", bg: "bg-blue-500",   label: "Guarded"  },
-  { min: 0,  color: "#22c55e", bg: "bg-green-500",  label: "Low"      },
+const SEVERITY_LEVELS = [
+  { defcon: 1 as const },
+  { defcon: 2 as const },
+  { defcon: 3 as const },
+  { defcon: 4 as const },
+  { defcon: 5 as const },
 ];
 
 export function SeverityBreakdown({ articles, activeSeverity, onSeverityClick }: SeverityBreakdownProps) {
   const scored = articles.filter((a) => a.defcon_score > 0);
   const total = scored.length;
 
-  const counts = LEVELS.map((level) => ({
-    ...level,
-    count: scored.filter((a) => {
-      const s = a.defcon_score;
-      if (level.min === 80) return s >= 80;
-      if (level.min === 60) return s >= 60 && s < 80;
-      if (level.min === 40) return s >= 40 && s < 60;
-      if (level.min === 20) return s >= 20 && s < 40;
-      return s > 0 && s < 20;
-    }).length,
+  const counts = SEVERITY_LEVELS.map(({ defcon }) => ({
+    defcon,
+    ...DEFCON_LEVELS[defcon],
+    count: scored.filter((a) => scoreToLevel(a.defcon_score) === defcon).length,
   }));
 
   return (
@@ -39,12 +34,15 @@ export function SeverityBreakdown({ articles, activeSeverity, onSeverityClick }:
 
       {total > 0 && (
         <div className="flex h-2 rounded-full overflow-hidden mb-3">
-          {counts.map((level) =>
-            level.count > 0 ? (
+          {counts.map((lvl) =>
+            lvl.count > 0 ? (
               <div
-                key={level.label}
-                className={cn(level.bg, "transition-all")}
-                style={{ width: `${(level.count / total) * 100}%` }}
+                key={lvl.defcon}
+                className="transition-all"
+                style={{
+                  width: `${(lvl.count / total) * 100}%`,
+                  backgroundColor: lvl.color,
+                }}
               />
             ) : null
           )}
@@ -52,12 +50,12 @@ export function SeverityBreakdown({ articles, activeSeverity, onSeverityClick }:
       )}
 
       <div className="flex flex-col gap-1.5">
-        {counts.map((level) => {
-          const isActive = activeSeverity === level.label;
+        {counts.map((lvl) => {
+          const isActive = activeSeverity === lvl.term;
           return (
             <button
-              key={level.label}
-              onClick={() => onSeverityClick(level.label)}
+              key={lvl.defcon}
+              onClick={() => onSeverityClick(lvl.term)}
               className={cn(
                 "flex items-center gap-2 rounded px-1.5 py-0.5 -mx-1.5 text-left transition-colors cursor-pointer",
                 isActive
@@ -68,8 +66,8 @@ export function SeverityBreakdown({ articles, activeSeverity, onSeverityClick }:
               <div
                 className="w-2 h-2 rounded-full flex-shrink-0 transition-all"
                 style={{
-                  backgroundColor: level.color,
-                  outline: isActive ? `2px solid ${level.color}` : undefined,
+                  backgroundColor: lvl.color,
+                  outline: isActive ? `2px solid ${lvl.color}` : undefined,
                   outlineOffset: isActive ? "2px" : undefined,
                 }}
               />
@@ -79,9 +77,9 @@ export function SeverityBreakdown({ articles, activeSeverity, onSeverityClick }:
                   ? "text-gray-900 dark:text-gray-100 font-medium"
                   : "text-gray-600 dark:text-gray-400"
               )}>
-                {level.label}
+                {lvl.defcon} {lvl.term}
               </span>
-              <span className="ml-auto text-xs text-gray-400 dark:text-gray-600">{level.count}</span>
+              <span className="ml-auto text-xs text-gray-400 dark:text-gray-600">{lvl.count}</span>
             </button>
           );
         })}

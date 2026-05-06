@@ -7,11 +7,11 @@ const TICK_INTERVAL = 60 * 1000;
 const PAGE_SIZE = 20;
 
 const SEVERITY_RANGES: Record<string, { min: number; max: number }> = {
-  Critical: { min: 80, max: 100 },
-  High:     { min: 60, max: 79 },
-  Elevated: { min: 40, max: 59 },
-  Guarded:  { min: 20, max: 39 },
-  Low:      { min: 1,  max: 19 },
+  "Cocked Pistol": { min: 80,   max: 100  },
+  "Fast Pace":     { min: 60,   max: 79.99 },
+  "Round House":   { min: 40,   max: 59.99 },
+  "Double Take":   { min: 20,   max: 39.99 },
+  "Fade Out":      { min: 0,    max: 19.99 },
 };
 
 export interface ArticleFilters {

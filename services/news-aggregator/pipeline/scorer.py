@@ -32,27 +32,33 @@ class DefconFactors:
     def level(self) -> int:
         t = self.total
         if t >= 80:
-            return 5
+            return 1
         elif t >= 60:
-            return 4
+            return 2
         elif t >= 40:
             return 3
         elif t >= 20:
-            return 2
-        return 1
+            return 4
+        return 5
 
     @property
     def label(self) -> str:
-        return {1: "LOW", 2: "GUARDED", 3: "ELEVATED", 4: "HIGH", 5: "CRITICAL"}[self.level]
+        return {
+            1: "Cocked Pistol",
+            2: "Fast Pace",
+            3: "Round House",
+            4: "Double Take",
+            5: "Fade Out",
+        }[self.level]
 
     @property
     def color(self) -> str:
         return {
-            1: "#22c55e",   # green-500
-            2: "#3b82f6",   # blue-500
-            3: "#f59e0b",   # amber-500
-            4: "#ea580c",   # orange-600
-            5: "#dc2626",   # red-600
+            1: "#ffffff",   # white — DEFCON 1
+            2: "#dc2626",   # red — DEFCON 2
+            3: "#eab308",   # yellow — DEFCON 3
+            4: "#22c55e",   # green — DEFCON 4
+            5: "#3b82f6",   # blue — DEFCON 5
         }[self.level]
 
     def to_dict(self) -> dict:

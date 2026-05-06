@@ -1,5 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { DEFCON_LEVELS, scoreToLevel } from "../../lib/constants";
 import type { Article } from "../../types/article";
 
 interface TopThreatsProps {
@@ -29,20 +30,19 @@ export function TopThreats({ articles }: TopThreatsProps) {
             rel="noopener noreferrer"
             className="group flex items-start gap-2 rounded-lg p-2 -mx-2 hover:bg-gray-100 dark:hover:bg-gray-800/50 transition-colors"
           >
-            <span className={cn(
-              "mt-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0",
-              article.defcon_score >= 80
-                ? "text-red-600 bg-red-600/10 border border-red-600/20"
-                : article.defcon_score >= 60
-                  ? "text-orange-600 bg-orange-600/10 border border-orange-600/20"
-                  : article.defcon_score >= 40
-                    ? "text-amber-500 bg-amber-500/10 border border-amber-500/20"
-                    : article.defcon_score >= 20
-                      ? "text-blue-500 bg-blue-500/10 border border-blue-500/20"
-                      : "text-green-500 bg-green-500/10 border border-green-500/20"
-            )}>
-              {Math.round(article.defcon_score)}
-            </span>
+            {(() => {
+              const lvl = DEFCON_LEVELS[scoreToLevel(article.defcon_score)];
+              const isDefcon1 = scoreToLevel(article.defcon_score) === 1;
+              return (
+                <span className={cn(
+                  "mt-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0",
+                  lvl.text, lvl.bg, "border", lvl.border,
+                  isDefcon1 && "defcon1-glow"
+                )}>
+                  {Math.round(article.defcon_score)}
+                </span>
+              );
+            })()}
             <span className="text-xs text-gray-700 dark:text-gray-300 leading-snug line-clamp-2 flex-1 group-hover:text-black dark:group-hover:text-white transition-colors">
               {article.title}
             </span>

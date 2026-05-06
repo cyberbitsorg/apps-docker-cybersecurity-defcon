@@ -72,7 +72,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     }
   };
 
-  const defconLevel = defconStatus?.level ?? 1;
+  const defconLevel = defconStatus?.level ?? 5;
   const levelStyle = DEFCON_LEVELS[defconLevel];
 
   return (
