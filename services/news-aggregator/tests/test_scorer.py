@@ -59,6 +59,10 @@ def test_extract_cvss_explicit():
 def test_extract_cvss_with_colon():
     assert _extract_cvss("CVSS: 7.5 high severity") == pytest.approx(7.5)
 
+def test_extract_cvss_version_qualifier_ignored():
+    # "CVSSv3.1: 9.8" — should return 9.8 (the score), not 3.1 (the version)
+    assert _extract_cvss("CVSSv3.1: 9.8 critical flaw") == pytest.approx(9.8)
+
 def test_extract_cvss_out_of_range_ignored():
     # Out-of-range CVSS should not be returned; fallback to severity words or 0
     assert _extract_cvss("cvss 11.0 flaw") == 0.0

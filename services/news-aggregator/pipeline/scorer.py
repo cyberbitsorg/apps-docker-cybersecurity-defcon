@@ -82,13 +82,18 @@ class DefconFactors:
 
 def _extract_cvss(text: str) -> float:
     """Best CVSS score from text (0-10), or inferred from severity keywords, or 0."""
-    for m in re.finditer(r"cvss[\s:v]*(\d+\.?\d*)", text, re.IGNORECASE):
-        try:
-            val = float(m.group(1))
-            if 0.0 <= val <= 10.0:
-                return val
-        except ValueError:
-            pass
+    scores = []
+    for context_match in re.finditer(r"cvss[^\n]{0,50}", text, re.IGNORECASE):
+        context = context_match.group(0)
+        for num_match in re.finditer(r"\b(\d+\.?\d*)\b", context):
+            try:
+                val = float(num_match.group(1))
+                if 0.0 <= val <= 10.0:
+                    scores.append(val)
+            except ValueError:
+                pass
+    if scores:
+        return max(scores)
     for word, score in SEVERITY_WORDS.items():
         if re.search(rf"\b{word}\b", text):
             return score
