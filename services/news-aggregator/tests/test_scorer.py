@@ -1,5 +1,12 @@
 import pytest
-from pipeline.scorer import DefconFactors
+from pipeline.scorer import (
+    DefconFactors,
+    _extract_cvss,
+    _extract_impact_raw,
+    _extract_keyword_raw,
+    compute_article_score,
+    compute_global_score,
+)
 
 
 @pytest.mark.parametrize("vol,cve,impact,kw,expected_level,expected_term,expected_color", [
@@ -42,3 +49,79 @@ def test_zero_articles_returns_defcon5():
     f = DefconFactors(0.0, 0.0, 0.0, 0.0)
     assert f.level == 5
     assert f.label == "Fade Out"
+
+
+# --- _extract_cvss ---
+
+def test_extract_cvss_explicit():
+    assert _extract_cvss("cvss 9.8 critical flaw") == pytest.approx(9.8)
+
+def test_extract_cvss_with_colon():
+    assert _extract_cvss("CVSS: 7.5 high severity") == pytest.approx(7.5)
+
+def test_extract_cvss_out_of_range_ignored():
+    # Out-of-range CVSS should not be returned; fallback to severity words or 0
+    assert _extract_cvss("cvss 11.0 flaw") == 0.0
+
+def test_extract_cvss_severity_fallback_critical():
+    assert _extract_cvss("critical vulnerability no explicit score") == pytest.approx(9.0)
+
+def test_extract_cvss_severity_fallback_high():
+    assert _extract_cvss("high severity flaw") == pytest.approx(7.0)
+
+def test_extract_cvss_no_signals():
+    assert _extract_cvss("routine software update released") == 0.0
+
+
+# --- _extract_impact_raw ---
+
+def test_extract_impact_raw_actively_exploited():
+    assert _extract_impact_raw("actively exploited in the wild") == 6
+
+def test_extract_impact_raw_critical_sector():
+    assert _extract_impact_raw("hospital systems targeted by attackers") == 5
+
+def test_extract_impact_raw_million():
+    assert _extract_impact_raw("2 million users affected") == 4
+
+def test_extract_impact_raw_countries_above_threshold():
+    assert _extract_impact_raw("spread to 10 countries") == 4
+
+def test_extract_impact_raw_countries_below_threshold():
+    assert _extract_impact_raw("reported in 3 countries") == 0
+
+def test_extract_impact_raw_data_breach():
+    assert _extract_impact_raw("data breach exposed credentials") == 3
+
+def test_extract_impact_raw_large_record_count():
+    assert _extract_impact_raw("1500000 records stolen") == 3
+
+def test_extract_impact_raw_no_signals():
+    assert _extract_impact_raw("minor software advisory") == 0
+
+def test_extract_impact_raw_stacks():
+    # hospital(5) + actively exploited(6) + 2 million(4) = 15
+    assert _extract_impact_raw("hospital actively exploited 2 million users") == 15
+
+
+# --- _extract_keyword_raw ---
+
+def test_extract_keyword_raw_tier1_zero_day():
+    # TIER1 "zero-day" = 8 pts; "exploit" is TIER3 = 1 pt
+    assert _extract_keyword_raw("zero-day exploit used in attack") == 9
+
+def test_extract_keyword_raw_zero_day_not_double_counted():
+    # "zero-day" should only score via TIER1 (8), not also via TIER3
+    score_with_zero_day = _extract_keyword_raw("zero-day exploit")
+    score_exploit_only  = _extract_keyword_raw("exploit")
+    assert score_with_zero_day - score_exploit_only == 8
+
+def test_extract_keyword_raw_tier2_only():
+    # "ransomware" is TIER2 (4); "ransomware attack" is TIER1 (8) — text has neither of those
+    assert _extract_keyword_raw("ransomware detected on endpoint") == 4
+
+def test_extract_keyword_raw_tier3():
+    assert _extract_keyword_raw("vulnerability patch released") == 2
+
+def test_extract_keyword_raw_no_keywords():
+    assert _extract_keyword_raw("weather update today") == 0
