@@ -129,3 +129,35 @@ def test_extract_keyword_raw_tier3():
 
 def test_extract_keyword_raw_no_keywords():
     assert _extract_keyword_raw("weather update today") == 0
+
+
+# --- compute_article_score ---
+
+def test_article_score_empty_is_zero():
+    assert compute_article_score("", "") == 0.0
+
+def test_article_score_no_phantom_volume():
+    # Under the old scheme an empty article scored ~2 due to the volume dimension.
+    # New scheme: no volume, so truly empty = 0.
+    assert compute_article_score("no keywords here", "") == 0.0
+
+def test_article_score_critical_reaches_defcon1():
+    score = compute_article_score(
+        "Nation-state zero-day attack on critical infrastructure",
+        "CVSS 9.8 actively exploited power grid government military",
+    )
+    assert score >= 80.0
+
+def test_article_score_rce_actively_exploited_is_defcon2_or_3():
+    score = compute_article_score(
+        "RCE vulnerability actively exploited in the wild",
+        "CVSS 9.0 remote code execution data breach exposed",
+    )
+    assert 60.0 <= score < 80.0
+
+def test_article_score_routine_patch_is_defcon4_or_5():
+    score = compute_article_score(
+        "Microsoft patches medium severity CVE-2024-1234",
+        "CVSS 5.0 vulnerability fixed in monthly update patch",
+    )
+    assert score < 40.0
