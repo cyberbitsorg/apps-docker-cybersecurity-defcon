@@ -20,7 +20,7 @@ TIER2 = [
 TIER3 = [
     "vulnerability", "exploit", "patch", "breach", "malware",
     "phishing", "cve", "trojan", "spyware",
-    "data leak", "threat actor", "unauthorized access",
+    "data leak", "threat actor", "unauthorized access", "credential",
 ]
 # "zero-day" intentionally absent from TIER3 — already scored via TIER1
 # Short terms that appear as substrings in unrelated words ("rce" in "force", "apt" in "capture")

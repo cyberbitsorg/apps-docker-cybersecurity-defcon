@@ -31,7 +31,7 @@ export function ArticleCard({ article, onToggleRead }: ArticleCardProps) {
         <div className="flex items-center gap-2 mb-2">
           <ArticleSource source={source} sourceDisplay={source_display} />
           <span className="text-xs text-gray-400 dark:text-gray-600">{formatRelativeTime(published_at)}</span>
-          {defcon_score > 0 && (() => {
+          {(() => {
             const lvl = DEFCON_LEVELS[scoreToLevel(defcon_score)];
             const isDefcon1 = scoreToLevel(defcon_score) === 1;
             return (
