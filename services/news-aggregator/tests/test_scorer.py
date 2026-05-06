@@ -161,3 +161,51 @@ def test_article_score_routine_patch_is_defcon4_or_5():
         "CVSS 5.0 vulnerability fixed in monthly update patch",
     )
     assert score < 40.0
+
+
+# --- compute_global_score ---
+
+def test_global_score_empty_articles_returns_zero():
+    factors = compute_global_score([], new_count=0, avg_volume=None)
+    assert factors.total == 0.0
+
+def test_global_score_volume_cold_start_is_neutral():
+    articles = [{"title": "malware detected", "summary": "ransomware"}]
+    factors = compute_global_score(articles, new_count=5, avg_volume=None)
+    assert factors.volume_score == pytest.approx(12.5)
+
+def test_global_score_volume_at_baseline_is_neutral():
+    articles = [{"title": "malware detected", "summary": "ransomware"}]
+    factors = compute_global_score(articles, new_count=10, avg_volume=10.0)
+    assert factors.volume_score == pytest.approx(12.5)
+
+def test_global_score_volume_double_spike_maxes():
+    articles = [{"title": "malware detected", "summary": "ransomware"}]
+    factors = compute_global_score(articles, new_count=20, avg_volume=10.0)
+    assert factors.volume_score == pytest.approx(25.0)
+
+def test_global_score_volume_half_baseline_is_low():
+    articles = [{"title": "malware detected", "summary": "ransomware"}]
+    factors = compute_global_score(articles, new_count=5, avg_volume=10.0)
+    assert factors.volume_score == pytest.approx(6.25)
+
+def test_global_score_cve_fallback_fires_per_article():
+    """Both articles should contribute to cve_score even when only one has explicit CVSS."""
+    articles = [
+        {"title": "CVSS 9.8 critical remote code execution flaw", "summary": "explicit score"},
+        {"title": "critical vulnerability actively exploited", "summary": "no explicit cvss here"},
+    ]
+    factors = compute_global_score(articles, new_count=2, avg_volume=10.0)
+    # avg_cvss = (9.8 + 9.0) / 2 = 9.4  →  cve_score = (9.4/10) * 25 = 23.5
+    assert factors.cve_score == pytest.approx(23.5, abs=0.5)
+
+def test_global_score_articles_without_cve_pull_average_down():
+    """Articles with no CVE signals should contribute 0 and lower the average."""
+    articles = [
+        {"title": "CVSS 10.0 critical flaw", "summary": ""},
+        {"title": "routine software release", "summary": "no threats"},
+    ]
+    factors = compute_global_score(articles, new_count=2, avg_volume=10.0)
+    # article 1: explicit CVSS 10.0 → 10.0; article 2: no signals → 0.0
+    # avg_cvss = (10.0 + 0.0) / 2 = 5.0 → cve_score = 5.0/10 * 25 = 12.5
+    assert factors.cve_score == pytest.approx(12.5, abs=0.5)
