@@ -77,7 +77,7 @@ export function SeverityBreakdown({ articles, activeSeverity, onSeverityClick }:
                   ? "text-gray-900 dark:text-gray-100 font-medium"
                   : "text-gray-600 dark:text-gray-400"
               )}>
-                {lvl.term}
+                {lvl.defcon} {lvl.term}
               </span>
               <span className="ml-auto text-xs text-gray-400 dark:text-gray-600">{lvl.count}</span>
             </button>
